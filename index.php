@@ -73,6 +73,9 @@ if(!Utils::isPjax()){
                                     <?php if($setting['VOIDPlugin']): ?>
                                         <span class="word-count">+ <?php echo $this->wordCount; ?> 字</span>
                                     <?php endif; ?>
+                                    <?php if (Utils::isPluginAvailable('TypechoPay') && class_exists('\\TypechoPlugin\\TypechoPay\\Plugin')): ?>
+                                        <?php echo \TypechoPlugin\TypechoPay\Plugin::renderPostBadge($this); ?>
+                                    <?php endif; ?>
                                 </div>
 
                                 <?php if($this->fields->showfullcontent == '1'): ?>

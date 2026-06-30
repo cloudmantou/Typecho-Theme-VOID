@@ -55,6 +55,9 @@ $setting = $GLOBALS['VOIDSetting'];
                                     <?php if($setting['VOIDPlugin']): ?>
                                         <span class="word-count">+ <?php echo $this->wordCount; ?> 字</span>
                                     <?php endif; ?>
+                                    <?php if (Utils::isPluginAvailable('TypechoPay') && class_exists('\\TypechoPlugin\\TypechoPay\\Plugin')): ?>
+                                        <?php echo \TypechoPlugin\TypechoPay\Plugin::renderPostBadge($this); ?>
+                                    <?php endif; ?>
                                 </div>
 
                                 <h1 class="title"><?php $this->title(); ?></h1>

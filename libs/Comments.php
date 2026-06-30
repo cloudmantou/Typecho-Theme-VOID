@@ -261,7 +261,7 @@ class VOID_Widget_Comments_Archive extends Widget_Abstract_Comments
      * @access protected
      * @return void
      */
-    protected function ___parentContent() : ?array
+    protected function ___parentContent() : Widget\Base\Contents
     {
         return $this->parameter->parentContent;
     }
