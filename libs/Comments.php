@@ -112,6 +112,7 @@ class VOID_Widget_Comments_Archive extends Widget_Abstract_Comments
             }
         }
 
+        $commentClass = '';
         if ($setting['VOIDPlugin']) {
             $metaArr = $this->getLikesAndDislikes();
             if ($metaArr['dislikes'] >= $setting['commentFoldThreshold'][0]
@@ -187,31 +188,31 @@ class VOID_Widget_Comments_Archive extends Widget_Abstract_Comments
     }
   
     private function getParent(){
-        $db = Typecho_Db::get();
-        $parentID = $db->fetchRow($db->select('parent')->from('table.comments')->where('coid = ?', $this->coid));
-        $parentID=$parentID['parent'];
-        if($parentID=='0') return '';
-        else {
-            $author = $db->fetchRow($db->select()->from('table.comments')->where('coid = ?', $parentID));
-            if ($author === null) {
-                $author = array();
-            }
-            if (!array_key_exists('author', $author) || empty($author['author'])) {
-                $author['author'] = '已删除的评论';
-            }
-            return ' <span style="font-size: 0.9rem">回复</span> <b style="font-size:0.9rem;margin-right: 0.3em">@' . $author['author'] . '</b> ';
+        $parentID = (int) ($this->realParent ?: $this->parent);
+        if ($parentID === 0) {
+            return '';
         }
+
+        $author = isset($this->_commentAuthors[$parentID]) && $this->_commentAuthors[$parentID] !== ''
+            ? $this->_commentAuthors[$parentID]
+            : '已删除的评论';
+
+        return ' <span style="font-size: 0.9rem">回复</span> <b style="font-size:0.9rem;margin-right: 0.3em">@' . self::escapeHtml($author) . '</b> ';
     }  
 
     /**
      * 获取评论赞踩
      */
     private function getLikesAndDislikes() {
-        $db = Typecho_Db::get();
-        $row = $db->fetchRow($db->select('likes, dislikes')
-            ->from('table.comments')
-            ->where('coid = ?', $this->coid));
-        return array('likes' => $row['likes'], 'dislikes' => $row['dislikes']);
+        return array(
+            'likes' => (int) ($this->likes ?? 0),
+            'dislikes' => (int) ($this->dislikes ?? 0)
+        );
+    }
+
+    private static function escapeHtml($value)
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
     }
     
     /**

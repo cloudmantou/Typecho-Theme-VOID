@@ -303,6 +303,8 @@ Class Contents
         $setting = $GLOBALS['VOIDSetting'];
         $src_ori = $match[1];
         $src = $src_ori;
+        $srcAttr = self::escapeHtml($src_ori);
+        $caption = self::escapeHtml($match[2]);
         $classList = '';
 
         // 这里，若图片已获取长宽基础信息，则直接计算后输出
@@ -324,7 +326,7 @@ Class Contents
 
         $figcaption = '';
         if ($match[2] != '' && $setting['parseFigcaption'])
-            $figcaption = '<figcaption>'.$match[2].'</figcaption>';
+            $figcaption = '<figcaption>'.$caption.'</figcaption>';
 
         // 普通解析且开启懒加载
         $placeholder = '';
@@ -332,7 +334,7 @@ Class Contents
             $src = '';
             $classList = 'lazyload';
             if ($setting['bluredLazyload'])
-                $placeholder = '<img class="blured-placeholder remove-after" src="'.self::genBluredPlaceholderSrc($src_ori).'">';
+                $placeholder = '<img class="blured-placeholder remove-after" src="'.self::escapeHtml(self::genBluredPlaceholderSrc($src_ori)).'">';
 
             $attrAddOnA .= ' class="lazyload-container" ';
         }
@@ -340,16 +342,21 @@ Class Contents
         // 使用浏览器原生的懒加载方法
         if (!self::$photoMode && Helper::options()->lazyload == '1' && $setting['browserLevelLoadingLazy']) {
             $classList .= ' browserlevel-lazy';
-            $img = '<img class="'.$classList.'" alt="'.$match[2].'" src="'.$src_ori.'" loading="lazy">';
+            $img = '<img class="'.$classList.'" alt="'.$caption.'" src="'.$srcAttr.'" loading="lazy">';
         } else {
-            $img = $placeholder.'<img class="'.$classList.'" alt="'.$match[2].'" data-src="'.$src_ori.'" src="'.$src.'">';
+            $img = $placeholder.'<img class="'.$classList.'" alt="'.$caption.'" data-src="'.$srcAttr.'" src="'.self::escapeHtml($src).'">';
         }
 
         if (!self::$photoMode) {
-            return '<figure '.$attrAddOnFigure.' ><a '.$attrAddOnA.' no-pjax data-fancybox="gallery" data-caption="'.$match[2].'" href="'.$src_ori.'">'.$img.'</a>'.$figcaption.'</figure>';
+            return '<figure '.$attrAddOnFigure.' ><a '.$attrAddOnA.' no-pjax data-fancybox="gallery" data-caption="'.$caption.'" href="'.$srcAttr.'">'.$img.'</a>'.$figcaption.'</figure>';
         } else {
             return '<figure>'.$img.$figcaption.'</figure>';
         }
+    }
+
+    private static function escapeHtml($value)
+    {
+        return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
     }
 
     /**
